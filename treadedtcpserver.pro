@@ -30,3 +30,6 @@ HEADERS += \
 #QMAKE_CFLAGS = -fpermissive
 #QMAKE_CXXFLAGS = -fpermissive
 #QMAKE_LFLAGS = -fpermissive
+
+DISTFILES += \
+    tcp_client.py
