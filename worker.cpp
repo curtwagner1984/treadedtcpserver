@@ -7,8 +7,8 @@
 
 Worker::Worker(qintptr socketHandel, DiskWriter *diskWriter, QObject *parent) : QObject(parent)
 {
-    this->socketHandel =    socketHandel;
-    this->diskWriter =      diskWriter;
+    this->socketHandel   =  socketHandel;
+    this->diskWriter     =  diskWriter;
 
 }
 
@@ -24,7 +24,6 @@ void Worker::init()
     connect(this->socket,&QTcpSocket::disconnected,this,&Worker::onSocketDisconnected);
 
     connect(this,&Worker::signalToAdvnaceStateMachine,this,&Worker::advanceStateMachine,Qt::QueuedConnection);
-
     connect(this,&Worker::addPayloadWriteRequestToWriter,this->diskWriter,&DiskWriter::addPayloadWriteRequestToQueue);
 
 
@@ -34,76 +33,17 @@ void Worker::init()
 
 }
 
-//void Worker::messageHandler(QByteArray recievedByteArray)
-//{
-
-
-//    HeaderStruct header = this->bytesToHeader(recievedByteArray);
-
-//    if (header.opCode == 0){
-
-//        qDebug () << tr("Checksum Error in header... Sending error message back to client!");
-
-//        //todo: send error to client.
-
-//        return;
-//    }
-
-
-//}
-
-//HeaderStruct Worker::bytesToHeader(QByteArray recivedHeaderByteArray)
-//{
-
-//    HeaderStruct header;
-
-//    memcpy(&header,recivedHeaderByteArray.constData(),sizeof(header));
-
-//    qint16 receivedHeaderChecksum = header.headerCheckSum;
-
-//    header.headerCheckSum = 0;
-
-//    char b[sizeof(header)];
-//    memcpy(b,&header,sizeof(header));
-
-//    qint16 calculatedrecHeaderChecksum = qChecksum(b,sizeof(b));
-
-
-//    if (receivedHeaderChecksum == calculatedrecHeaderChecksum){
-
-//        qDebug() << tr("received correct checksum");
-
-//    }else{
-//        qDebug() << tr("checksum error! header data currupted.");
-//        header.opCode = 0; // means the checksum didn't match.
-//    }
-
-//    return header;
-
-
-
-//}
-
-
-
-//quint16 Worker::getChecksumForByteArray(QByteArray byteArrayToCheck)
-//{
-
-//    const char *data = byteArrayToCheck.constData();
-//    return qChecksum(data,sizeof(data));
-
-//}
 
 bool Worker::isHeaderChecksumMatch()
 {
-    TYPE_HEADER_CHECKSUM checksum = qChecksum((char*)(&this->header) + HEADER_CHECKSUM_OFFSET, HEADER_SIZE - HEADER_CHECKSUM_OFFSET);
-    return this->header.headerCheckSum == checksum;
+//    TYPE_HEADER_CHECKSUM checksum = qChecksum((char*)(&this->header) + HEADER_CHECKSUM_OFFSET, HEADER_SIZE - HEADER_CHECKSUM_OFFSET);
+//    return this->header.headerCheckSum == checksum;
     return true;
 }
 
 bool Worker::isPayloadChecksumMatch()
 {
-    return this->header.payloadCheckSum == qChecksum((char*)(&this->payload),PAYLOAD_SIZE);
+//    return this->header.payloadCheckSum == qChecksum((char*)(&this->payload),PAYLOAD_SIZE);
     return true;
 }
 
@@ -178,7 +118,9 @@ void Worker::advanceStateMachine()
     int bytesAvaliable = this->socket->bytesAvailable();
 
 
+    // State machine is wating for headers.
     if(this->currentState == State::STATE_FIRST_MESSAGE_WAITING_FOR_HEADER || this->currentState == State::STATE_RECEIVING_DATA_WAITING_FOR_HEADER ){
+
 
 
         while (false == this->isSeenMagicNumber && this->socket->bytesAvailable() >= HEADER_MAGIC_NUMBER_SIZE){
@@ -294,6 +236,7 @@ void Worker::advanceStateMachine()
                     payloadWriteRequest->payloadIndex = this->header.payloadIndex;
                     payloadWriteRequest->fileSize = this->transferDataSize;
 
+
                     emit this->addPayloadWriteRequestToWriter(payloadWriteRequest);
 
 
@@ -310,7 +253,7 @@ void Worker::advanceStateMachine()
 
 
     }
-    if (this->socket->bytesAvailable() > 0){
+    if (this->socket->bytesAvailable() > 0 && (this->currentState == STATE_RECEIVING_DATA_HEADER_RECEIVED || this->currentState == STATE_RECEIVING_DATA_WAITING_FOR_HEADER)){
         emit signalToAdvnaceStateMachine();
     }else if (this->socketDisconnected){
         this->preExit();

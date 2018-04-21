@@ -21,6 +21,7 @@ private:
 
 
 signals:
+    void fileWasWrittenCorrectly();
 
 
 public slots:

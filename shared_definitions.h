@@ -1,9 +1,12 @@
+
+
 #ifndef SHARED_DEFINITIONS_H
 #define SHARED_DEFINITIONS_H
 
 #include <QObject>
+#include <QVector>
 
-// github update test
+
 
 #define TYPE_OPCODE quint16
 #define TYPE_HEADER_CHECKSUM quint16
@@ -42,23 +45,25 @@ enum State {
 typedef struct __attribute__((packed, aligned(4)))
 {
 
-    TYPE_HEADER_CHECKSUM    headerCheckSum;
-    TYPE_OPCODE             opCode;
-    TYPE_PAYLOAD_INDEX      payloadIndex;
-    TYPE_PAYLOAD_CHECKSUM   payloadCheckSum;
-    TYPE_HEADER_STATUS      headerStatus;
+    TYPE_HEADER_CHECKSUM    headerCheckSum; // 2 byte
+    TYPE_OPCODE             opCode;         // 2 byte
+    TYPE_PAYLOAD_INDEX      payloadIndex;   // 4 byte
+    TYPE_PAYLOAD_CHECKSUM   payloadCheckSum;// 2 byte
+    TYPE_HEADER_STATUS      headerStatus;   // 2 byte
 
 
 }HeaderStruct;
 
-#define HEADER_SIZE                 (sizeof(HeaderStruct))
-#define HEADER_CHECKSUM_SIZE        (sizeof(TYPE_HEADER_CHECKSUM))
-#define HEADER_MAGIC_NUMBER_SIZE    (sizeof(TYPE_MAGIC_NUMBER))
-#define HEADER_CHECKSUM_OFFSET      (HEADER_CHECKSUM_SIZE)
-#define PACKET_SIZE                 (512)
-#define PAYLOAD_SIZE                ((PACKET_SIZE) - (HEADER_SIZE + HEADER_MAGIC_NUMBER_SIZE))
-#define SHA256_SIZE                 (32)
-#define HEADER_MAGIC_NUMBER         (0xDEADBEEF)
+#define HEADER_SIZE                     (sizeof(HeaderStruct))
+#define HEADER_CHECKSUM_SIZE            (sizeof(TYPE_HEADER_CHECKSUM))
+#define HEADER_MAGIC_NUMBER_SIZE        (sizeof(TYPE_MAGIC_NUMBER))
+#define HEADER_CHECKSUM_OFFSET          (HEADER_CHECKSUM_SIZE)
+#define PACKET_SIZE                     (512)
+#define PAYLOAD_SIZE                    ((PACKET_SIZE) - (HEADER_SIZE + HEADER_MAGIC_NUMBER_SIZE))
+#define SHA256_SIZE                     (32)
+#define HEADER_MAGIC_NUMBER             (0xDEADBEEF)
+
+
 
 #define TYPE_PAYLOAD_TRANSFER_SIZE      quint64
 #define TYPE_PAYLOAD_FILE_INDENTIFIER   quint32
@@ -82,9 +87,13 @@ typedef struct __attribute__((packed, aligned(4)))
 
 typedef struct __attribute__((packed, aligned(4)))
 {
-    bool*   allWritten;
-    quint32 size;
-    quint32 notWritten;
+    bool*           allWritten;
+    quint32         size;
+    quint32         notWritten;
+    bool            doneWritingFile;
+
+
+
 
 }FileWrittenTable;
 
@@ -97,6 +106,7 @@ typedef struct __attribute__((packed, aligned(4)))
     TYPE_PAYLOAD_FILE_INDENTIFIER   fileIdentifier;
     PayloadStruct                   payload;
     TYPE_PAYLOAD_TRANSFER_SIZE      fileSize;
+
 
 }PayloadWriteRequest;
 
