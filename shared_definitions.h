@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+// github update test
+
 #define TYPE_OPCODE quint16
 #define TYPE_HEADER_CHECKSUM quint16
 #define TYPE_MAGIC_NUMBER quint32
